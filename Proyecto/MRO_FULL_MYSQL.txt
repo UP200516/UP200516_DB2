@@ -1,0 +1,430 @@
+----------------------------------------------------------------------------------------USUARIO----------------------------------------------------------------------------------------------
+
+CREAR USUARIO MYSQL
+
+CREATE USER 'flix' IDENTIFIED BY 'flix';
+GRANT ALL PRIVILEGES * ON Online_Media_Rental. * TO 'flix';
+FLUSH PRIVILEGES;
+
+-------------------------------------------------------------------------------------TABLAS AND SEQUENCE----------------------------------------------------------------------------------------------
+
+use Online_Media_Rental;
+CREATE TABLE movies
+    (title_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(60) NOT NULL,
+    description TEXT(400) NOT NULL,
+    rating VARCHAR(4) CONSTRAINT OMR_Movies_Rating_Check_UPPER CHECK(UPPER(RATING) IN ('G','PG','PG13','R')),
+    category VARCHAR(20) CONSTRAINT OMR_Movies_Category_Check_UPPER CHECK(UPPER(CATEGORY) IN ('DRAMA','COMEDY','ACTION','CHILD','SCIFI','DOCUMENTARY')),
+    release_date DATE NOT NULL); 
+ALTER TABLE Movies AUTO_INCREMENT = 1;
+    
+CREATE TABLE actors
+    (actor_id int AUTO_INCREMENT PRIMARY KEY,
+    stage_name VARCHAR(40) NOT NULL,
+    last_name VARCHAR(25) NOT NULL,
+    first_name VARCHAR(25) NOT NULL,
+    birth_date date NOT NULL);
+ALTER TABLE actors AUTO_INCREMENT = 1001;
+
+CREATE TABLE customers
+    (customer_id INT auto_increment PRIMARY KEY,
+    last_name VARCHAR(25) NOT NULL,
+    first_name VARCHAR(25) NOT NULL,
+    home_phone VARCHAR(12) NOT NULL,
+    address VARCHAR(100) NOT NULL,
+    city VARCHAR(30) NOT NULL,
+    state VARCHAR(2) NOT NULL,
+    email VARCHAR(25),
+    cell_phone VARCHAR(12));
+ALTER TABLE customers AUTO_INCREMENT = 101;
+
+CREATE TABLE star_billings
+    (actor_id INT NOT NULL,
+    title_id INT NOT NULL,
+    comments VARCHAR(40) NOT NULL,
+    constraint OMR_StarBillings_PK PRIMARY KEY (actor_id, title_id),
+    constraint OMR_StarBillings_ActorID_FK foreign key (actor_id) references actors(actor_id)  ON UPDATE CASCADE ON DELETE RESTRICT,
+    constraint OMR_StarBillings_TitleID_FK foreign key (title_id) references movies(title_id)  ON UPDATE CASCADE ON DELETE RESTRICT);
+    
+CREATE TABLE media
+    (media_id INT AUTO_INCREMENT primary key,
+    format VARCHAR(3) NOT NULL,
+    title_id INT NOT NULL,
+    constraint OMR_Media_TitleID_FK foreign key (title_id) references movies(title_id) ON UPDATE CASCADE ON DELETE RESTRICT	);
+ALTER TABLE media AUTO_INCREMENT = 92;      
+
+Create Table rental_history
+    (media_id INT NOT NULL,
+    rental_date date,
+    customer_id INT NOT NULL,
+    return_date date ,
+    constraint OMR_RentalHistory_PK primary key(customer_id,media_id,rental_date),
+    constraint OMR_RentalHistory_MediaID_FK foreign key (media_id) references media(media_id)  ON UPDATE CASCADE ON DELETE RESTRICT,
+	constraint OMR_RentalHistory_CustomerID_FK foreign key (customer_id) references customers(customer_id)  ON UPDATE CASCADE ON DELETE RESTRICT);
+
+-----------------------------------------------------------------------------------------VISTA TITLE_UNAVAIL----------------------------------------------------------------------------------
+
+create VIEW TITLE_UNAVAIL as
+select m.title, e.media_id
+from movies m, media e, rental_history r
+where  e.title_id = m.title_id and 
+e.media_id = r.media_id and r.return_date is null
+; 
+
+
+------------------------------------------------------------------------------------------DATOS----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Alpha', 'Beale', 'Pughe', STR_TO_DATE('21,5,2013','%d,%m,%Y'));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Lotlux', 'Janetta', 'Bealton', STR_TO_DATE('9,2,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Bytecard', 'Noble', 'Titherington', STR_TO_DATE('29,8,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Redhold', 'Willetta', 'Brightwell', STR_TO_DATE('22,4,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Job', 'Helen-elizabeth', 'Phalp', STR_TO_DATE('27,3,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Cardguard', 'Del', 'Gheeorghie', STR_TO_DATE('17,7,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Namfix', 'Mellie', 'Bromfield', STR_TO_DATE('11,12,2021',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Subin', 'Beryle', 'Battey', STR_TO_DATE('25,1,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Lotstring', 'Marsh', 'McGilvary', STR_TO_DATE('1,11,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Cardguard', 'Lory', 'Monnery', STR_TO_DATE('11,1,2021',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Cardify', 'Tiena', 'Gillbanks', STR_TO_DATE('26,7,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Daltfresh', 'Ring', 'Ellgood', STR_TO_DATE('19,4,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Zontrax', 'Cosmo', 'Liddel', STR_TO_DATE('12,7,2021',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Ronstring', 'Kamillah', 'Cornew', STR_TO_DATE('22,7,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Prodder', 'Rickert', 'Dillinger', STR_TO_DATE('16,11,2021',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Cardguard', 'Elisha', 'Park', STR_TO_DATE('24,5,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Namfix', 'Catarina', 'Pretty', STR_TO_DATE('3,7,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Zamit', 'Arlen', 'Filyukov', STR_TO_DATE('12,3,2021',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Voyatouch', 'Isador', 'Risborough', STR_TO_DATE('8,1,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Konklab', 'Normie', 'Le Clercq', STR_TO_DATE('15,1,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Holdlamis', 'Brandyn', 'Worham', STR_TO_DATE('24,7,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Sub-Ex', 'Belvia', 'Bouchard', STR_TO_DATE('26,4,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Stim', 'Silva', 'Fonte', STR_TO_DATE('1,12,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('It', 'Wendeline', 'Bollon', STR_TO_DATE('9,2,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Aerified', 'Cheslie', 'Crangle', STR_TO_DATE('21,11,2021',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Matsoft', 'Lucinda', 'Milton-White', STR_TO_DATE('9,7,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Asoka', 'Casandra', 'Dytham', STR_TO_DATE('21,5,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Flowdesk', 'Gerrilee', 'Gimert', STR_TO_DATE('17,7,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Stronghold', 'Inga', 'Derill', STR_TO_DATE('4,11,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Flexidy', 'Georgena', 'MacMychem', STR_TO_DATE('2,1,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Holdlamis', 'Tristan', 'Andries', STR_TO_DATE('10,8,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Lotstring', 'Arlyne', 'Gingle', STR_TO_DATE('9,4,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Kanlam', 'Daryl', 'Shankster', STR_TO_DATE('29,8,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Y-find', 'Orville', 'Hillin', STR_TO_DATE('7,10,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Flowdesk', 'Frederick', 'Toghill', STR_TO_DATE('9,10,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Bytecard', 'Kate', 'Abden', STR_TO_DATE('8,10,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Temp', 'Derward', 'Jewer', STR_TO_DATE('24,4,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Andalax', 'Vaughn', 'Dominico', STR_TO_DATE('2,7,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Bamity', 'Fern', 'Flello', STR_TO_DATE('26,8,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Bitwolf', 'Iorgos', 'Kerr', STR_TO_DATE('19,12,2021',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Tresom', 'Orton', 'Doxsey', STR_TO_DATE('15,12,2021',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Span', 'Kyla', 'Champneys', STR_TO_DATE('10,5,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Latlux', 'Aaron', 'Lipmann', STR_TO_DATE('28,5,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Ronstring', 'Reid', 'Fincher', STR_TO_DATE('9,2,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Temp', 'Jolynn', 'Rewan', STR_TO_DATE('18,3,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Pannier', 'Westbrooke', 'Heathcoat', STR_TO_DATE('8,9,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Bigtax', 'Vikky', 'Featley', STR_TO_DATE('10,10,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Tampflex', 'Blanch', 'felip', STR_TO_DATE0('28,1,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Veribet', 'Salomi', 'Marland', STR_TO_DATE('8,10,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Tampflex', 'Ronnie', 'Napoleone', STR_TO_DATE('17,12,2021',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Zontrax', 'Jeane', 'Chapier', STR_TO_DATE('15,7,2022',"%d,%m,%Y"));
+insert into ACTORS (STAGE_NAME, FIRST_NAME, LAST_NAME, BIRTH_DATE) values ('Bitchip', 'Consolata', 'Liston', STR_TO_DATE('11,6,2021',"%d,%m,%Y"));
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Miranda', 'Inj blood vessel of right middle finger, init encntr', 'PG', 'ACTION', STR_TO_DATE('19,3,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Pooh''s Grand Adventure: The Search for Christopher Robin', 'Nondisp seg fx shaft of ulna, r arm, 7thF', 'PG', 'ACTION',  STR_TO_DATE('11,1,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Night of the Living Dorks', 'Disp fx of 4th metatarsal bone, unsp foot, init for opn fx', 'G', 'CHILD',  STR_TO_DATE('6,1,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Cosmic Journey', 'Complications and ill-defined descriptions of heart disease', 'PG13', 'ACTION',  STR_TO_DATE('31,10,2021', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Bulworth', 'Other superficial bite of right elbow', 'PG', 'DRAMA',  STR_TO_DATE('13,10,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Travellers and Magicians', 'Preterm labor second tri w preterm del second tri, fetus 5', 'G', 'CHILD',  STR_TO_DATE('20,2,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Fine, Totally Fine (Zenzen Daijobu)', 'Fall from, out of or through building or structure', 'G', 'ACTION',  STR_TO_DATE('3,7,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Decoder', 'Disp fx of lateral malleolus of l fibula, 7thM', 'PG13', 'CHILD',  STR_TO_DATE('22,9,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Rosso', 'Other meniscus derangements, unspecified meniscus, left knee', 'G', 'DRAMA',  STR_TO_DATE('1,10,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Bombay Beach', 'Poisn by electrolytic,caloric,wtr-bal agnt, undet, sequela', 'R', 'COMEDY',  STR_TO_DATE('12,8,2021', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Boob, The', 'Disp fx of medial wall of left acetabulum, init for opn fx', 'R', 'ACTION',  STR_TO_DATE('13,4,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Kiss the Bride', 'Other secondary osteonecrosis, right foot', 'PG', 'ACTION',  STR_TO_DATE('14,9,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Dogfight', 'Infect,inflm reaction due to int fix of right ulna, init', 'R', 'ACTION',  STR_TO_DATE('27,5,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Undertow', 'Benign neoplasm of connective and oth soft tissue of pelvis', 'R', 'CHILD',  STR_TO_DATE('5,10,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'In Old Arizona', 'Flail chest, initial encounter for open fracture', 'R', 'ACTION',  STR_TO_DATE('20,9,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'I Am the Law', 'Disp fx of lateral condyle of r tibia, 7thK', 'PG13', 'CHILD',  STR_TO_DATE('11,10,2021', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Kind of Loving, A', 'Contact with knife, undetermined intent, subs encntr', 'G', 'ACTION',  STR_TO_DATE('18,12,2021', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Finding a Family', 'War operations involving unsp dest arcrft, milt', 'R', 'DOCUMENTARY',  STR_TO_DATE('28,4,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'The Man Who Shook the Hand of Vicente Fernandez', 'Activity, springboard and platform diving', 'R', 'COMEDY',  STR_TO_DATE('5,5,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'What Price Hollywood?', 'Chronic osteomyelitis w draining sinus, unsp ankle and foot', 'PG', 'DRAMA',  STR_TO_DATE('20,8,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Flame of Barbary Coast', 'Unsatisfactory restoration of tooth', 'PG13', 'DRAMA',  STR_TO_DATE('5,8,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Cameron''s Closet', 'Unspecified fracture of unspecified toe(s), sequela', 'G', 'DRAMA',  STR_TO_DATE('17,2,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Linewatch', 'Nondisp fx of olecran pro w intartic extn r ulna, 7thF', 'R', 'COMEDY',  STR_TO_DATE('24,7,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Signos del zodiaco, Los', 'Labor and delivery complicated by vasa previa, fetus 4', 'R', 'COMEDY',  STR_TO_DATE('23,6,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Summer of Blood', 'Commrcl fix-wing aircraft clsn injuring occupant, sequela', 'PG', 'CHILD',  STR_TO_DATE('23,4,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Topaze', 'Subluxation of T1,T2 thoracic vertebra, sequela', 'R', 'DOCUMENTARY',  STR_TO_DATE('10,14,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Blood on Satan''s Claw (a.k.a. Satan''s Skin)', 'Nondisp fx of olecran pro w intartic extension of unsp ulna', 'G', 'COMEDY',  STR_TO_DATE('4,12,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Lady Oscar', 'Burn of unspecified degree of left ankle', 'R', 'DOCUMENTARY',  STR_TO_DATE('6,4,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Left-Hand Side of the Fridge, The (Moitié gauche du frigo, La)', 'Coma scale, best motor response, extension, admit', 'R', 'DRAMA',  STR_TO_DATE('14,6,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Hey Bartender', 'Contusion of right ankle', 'PG13', 'DOCUMENTARY',  STR_TO_DATE('22,1,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Claire Dolan', 'Milt op involving explosn of guided missile, civilian, subs', 'PG13', 'COMEDY',  STR_TO_DATE('10,9,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Gantz: Perfect Answer', 'In-line roller-skate accident', 'G', 'DOCUMENTARY',  STR_TO_DATE('19,2,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Por un puñado de besos', 'Posterior dislocation of left humerus, initial encounter', 'R', 'DOCUMENTARY',  STR_TO_DATE('30,3,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Battleground', 'Benign neoplasm of pharynx, unspecified', 'R', 'SCIFI',  STR_TO_DATE('3,7,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Sommersby', 'Open bite of anus, sequela', 'PG13', 'SCIFI',  STR_TO_DATE('24,3,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Cool, Dry Place, A', 'Villonodular synovitis (pigmented), unspecified hip', 'PG', 'DRAMA',  STR_TO_DATE('11,4,2021', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Lady Killer', 'Stable burst fracture of fourth lumbar vertebra', 'PG', 'SCIFI',  STR_TO_DATE('9,3,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Brick Mansions', 'Poisoning by antimycobacterial drugs, undetermined, subs', 'PG', 'SCIFI',  STR_TO_DATE('7,1,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Every Girl Should Be Married', 'Ped w convey injured in collision w 2,3-whl mv, unsp, subs', 'G', 'SCIFI',  STR_TO_DATE('11,11,2021', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Reconstituirea (Reconstruction)', 'Posterior dislocation of left radial head', 'R', 'SCIFI',  STR_TO_DATE('18,12,2021', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Seventh Cross, The', 'Other specified injuries of vocal cord, subsequent encounter', 'R', 'COMEDY',  STR_TO_DATE('8,3,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Dark Blue World (Tmavomodrý svet)', 'Dilated cardiomyopathy', 'G', 'COMEDY',  STR_TO_DATE('27,3,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Imposter, The', 'Nondisp seg fx shaft of r tibia, 7thN', 'PG13', 'DOCUMENTARY',  STR_TO_DATE('16,2,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'It''s Alive', 'Persistent atrial fibrillation', 'PG', 'DOCUMENTARY',  STR_TO_DATE('28,7,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Crime of Passion', 'Unspecified injury of unspecified tibial artery, left leg', 'PG13', 'ACTION',  STR_TO_DATE('28,3,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Mo', 'Nondisp fx of nk of unsp rad, 7thM', 'PG13', 'DOCUMENTARY',  STR_TO_DATE('16,3,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Last Waltz, The', 'Underdosing of peripheral vasodilators, sequela', 'G', 'SCIFI',  STR_TO_DATE('12,8,2021', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Children of Men', 'Incomplete rotatr-cuff tear,ruptr of l shoulder, not trauma', 'G', 'ACTION',  STR_TO_DATE('27,10,2021', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Rite, The', 'Malignant neoplasm of nipple and areola, unsp male breast', 'R', 'CHILD',  STR_TO_DATE('15,1,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'A Mulher Invisível', 'Acute myringitis, right ear', 'PG', 'DOCUMENTARY',  STR_TO_DATE('13,4,2022', "%d,%m,%Y"));
+insert into MOVIES (  TITLE, DESCRIPTION, RATING, CATEGORY, RELEASE_DATE) values (  'Welcome to Macintosh', 'Activity, golf', 'PG13', 'DOCUMENTARY',  STR_TO_DATE('1,3,2022', "%d,%m,%Y"));
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Raynard', 'Beilul', '694 299 1376', '66 Onsgard Court', 'Coyoacan', 'CM', 'braynard0@wufoo.com', '6066694');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Records', 'Hillie', '741 729 0884', '03 Carey Avenue', 'Tlalpan', 'CM', 'hrecords1@army.mil', '2162486');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Hesbrook', 'Rosaleen', '119 562 6985', '6 Toban Court', 'Alvaro Obregon', 'CM', 'rhesbrook2@soup.io', '2181714');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Fulloway', 'Darryl', '330 487 7470', '3005 Carey Terrace', 'Galeana', 'NL', 'dfulloway3@ebay.co.uk', '7506436');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Crips', 'Adelaida', '815 676 0488', '5 Quincy Street', 'Uruapan',  'MH', 'acrips4@yelp.com', '1861435');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Skeermor', 'Ambrosius', '945 589 0486', '825 Larry Road', 'Queretaro', 'QT', 'askeermor5@dropbox.com', '9767340');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Hischke', 'Lucian', '561 400 2079', '251 Algoma Road', 'Nuevo Laredo', 'TM', 'lhischke6@un.org', '6943431');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Clackson', 'My', '467 799 7342', '24 Pennsylvania Way', 'Tequila', 'JL', 'mclackson7@nba.com', '5245371');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Dionisetto', 'Nancy', '335 728 4419', '04 Dwight Pass', 'Guerrero', 'CH', 'ndionisetto8@imgur.com', '3349556');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Wagon', 'Bari', '368 238 6592', '701 Clyde Gallagher Street', 'Allende', 'NL', 'bwagon9@zdnet.com', '4867738');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Wisson', 'Marven', '240 330 0574', '71381 Melody Hill', 'Janos', 'CH', 'mwissona@addtoany.com', '7660334');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Sackey', 'Candra', '677 693 5672', '65 Bartillon Street', 'Culiacan', 'SN', 'csackeyb@exblog.jp', '5582063');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Pimblett', 'Ardys', '212 431 5606', '9581 Bellgrove Pass', 'Lazaro Cardenas', 'MH', 'apimblettc@pen.io', '8630883');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Towll', 'Rikki', '359 908 8695', '5711 Delaware Place', 'Los Cabos', 'BC', 'rtowlld@aboutads.info', '1909727');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Hickin', 'Halley', '411 582 9337', '01 Beilfuss Way', 'Acatic', 'JL', 'hhickine@slideshare.net', '8838635');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Melhuish', 'Rutger', '599 741 5284', '2836 Cascade Park', 'Santiago', 'NL', 'rmelhuishf@yahoo.com', '5802339');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Keedwell', 'Vivyanne', '817 239 3543', '08 Hallows Pass', 'Budapest', 'BP', 'vkeedwellg@eventbrite.com', '4068319');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Cordelle', 'Casandra', '532 706 8858', '15828 8th Lane', 'Québec', 'LL', 'ccordelleh@smh.com.au', '5330273');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Schoffler', 'Eachelle', '298 108 4020', '9120 Bunker Hill Terrace', 'Reforma', 'CP', 'eschoffleri@fema.gov', '2575214');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Corris', 'Marge', '177 800 3138', '3 Corscot Trail', 'La Paz', 'BC', 'mcorrisj@ask.com', '9055067');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Ettels', 'Margalo', '296 735 4478', '4950 Straubel Pass', 'Garcia', 'NL', 'mettelsk@soundcloud.com', '2066236');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Fussell', 'Leupold', '812 328 6629', '25479 Tony Plaza', 'Madero', 'MH', 'lfusselll@omniture.com', '8158761');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Standbrooke', 'Alexa', '150 306 5133', '6575 Troy Crossing', 'Tapalpa', 'JL', 'astandbrookem@businessinsider.com', '9296145');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Kondratenko', 'Shari', '373 511 5247', '7 Graceland Center', 'Carmen', 'CE', 'skondratenkon@4shared.com', '4487556');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Moxon', 'Gian', '981 467 0901', '634 Scoville Trail', 'Jalapa', 'TB', 'gmoxono@google.ca', '8410264');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Henzley', 'Richmound', '354 840 0604', '2106 Melrose Parkway', 'Campeche', 'CE', 'rhenzleyp@last.fm', '4066011');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Messiter', 'Karalynn', '828 135 0054', '7798 Michigan Center', 'Miguel Aleman', 'TM', 'kmessiterq@paginegialle.it', '9805247');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Vint', 'Clarisse', '676 597 6258', '186 Old Gate Alley', 'Pedro Escobedo', 'QT', 'cvintr@umich.edu', '2972557');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Maxstead', 'Raeann', '211 487 7371', '39 Oak Valley Place', 'Colon', 'QT', 'rmaxsteads@mtv.com', '8333541');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Rawstorn', 'Averyl', '613 467 3182', '1118 Roth Place', 'La Trinitaria', 'CP', 'arawstornt@123-reg.co.uk', '8483086');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Edelheit', 'Joletta', '108 219 7540', '20 Miller Park', 'Hidalgo', 'MH', 'jedelheitu@hud.gov', '(550) 1915998');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Persse', 'Kin', '337 158 1767', '06917 Manitowish Terrace', 'Juarez', 'NL', 'kperssev@chicagotribune.com', '1763761');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Norman', 'Buck', '247 708 9035', '4 Katie Trail', 'Cosio', 'AG', 'bnormanw@furl.net', '6513282');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'McCrann', 'Bernice', '376 399 4749', '7 Dawn Lane', 'Morelos', 'CH', 'bmccrannx@symantec.com', '2469237');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Althrop', 'Leonora', '205 923 4124', '80 Redwing Terrace', 'Cardenas', 'TB', 'lalthropy@dmoz.org', '2204793');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'McKendo', 'Dorthea', '807 604 9992', '60 Northport Way', 'Calvillo', 'AG', 'dmckendoz@earthlink.net', '5874289');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Fitzpayn', 'Hardy', '758 668 2709', '0 Nova Point', 'Morelia', 'MH', 'hfitzpayn10@nasa.gov', '8171520');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Pegrum', 'Karlis', '140 683 0700', '96 Dakota Crossing', 'El Fuerte', 'SN', 'kpegrum11@time.com', '4460112');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Sugarman', 'Raimund', '323 441 9546', '2 Buell Junction', 'British Columbia', 'GL', 'rsugarman12@noaa.gov', '5642173');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Hamlin', 'Audra', '377 170 5485', '9506 Becker Street', 'Tuxpan', 'JL', 'ahamlin13@icio.us', '9516552');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Howgill', 'Kristy', '599 416 2358', '7608 Bay Center', 'Bustamante', 'NL', 'khowgill14@ebay.co.uk', '7973817');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Cothey', 'Ryley', '695 436 5912', '02 Tony Circle', 'Villahermosa', 'TB', 'rcothey15@goo.gl', '8493437');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Offer', 'Nichol', '426 484 7152', '6636 East Place', 'Braga', 'DN', 'noffer16@ox.ac.uk', '7954703');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Meadway', 'Freddy', '687 866 8685', '23 Linden Avenue', 'Buenavista', 'MH', 'fmeadway17@so-net.ne.jp', '2338256');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Rainsden', 'Alfy', '915 356 5344', '612 Green Ridge Court', 'Padilla', 'TM', 'arainsden18@jugem.jp', '8659775');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Muff', 'Katee', '329 639 2973', '5838 La Follette Point', 'Asientos', 'AG', 'kmuff19@t.co', '2651492');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Daddow', 'Kelby', '860 548 9859', '97 Roxbury Drive', 'Sinaloa', 'SN', 'kdaddow1a@ycombinator.com', '2617155');
+insert into CUSTOMERS (  LAST_NAME, FIRST_NAME, HOME_PHONE, ADDRESS, CITY, STATE, EMAIL, CELL_PHONE) values (  'Olney', 'Shaine', '991 145 3921', '92 Gerald Avenue', 'Linares', 'NL', 'solney1b@acqui.com', '6721203');
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1001, 1, 'Intermitt explosive dis');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1002, 2, 'Retained wood fragments');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1003, 3, 'Inf arthritis NEC-mult');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1004, 4, 'Crush inj mult site NEC');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1005, 5, 'Stenosis ear d/t trauma');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1006, 6, 'Adv eff antinfct NEC/NOS');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1007, 7, 'Unc behav neo kidney');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1008, 8, 'Retinoshisis or cyst NEC');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1009, 9, 'Hx-seafood allergy');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1010, 10, 'Deep 3rd deg burn neck');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1011, 11, 'Transient met dis NB NOS');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1012, 12, 'Ch leu uns cl in relapse');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1013, 13, 'Gangr ventral hernia NOS');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1014, 14, 'Overexert reptv mvmt NOS');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1015, 15, 'Kyasanur forest disease');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1016, 16, 'Soft tissue anomaly NEC');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1017, 17, 'Path fx tibia fibula');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1018, 18, 'Int inf oth sml rnd vrus');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1019, 19, 'TB pneumothorax-oth test');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1020, 20, 'Cl skl vlt fx-concus NOS');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1021, 21, 'Abn glandular pap smear');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1022, 22, 'Mal neo soft tissue head');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1023, 23, 'Liver injury NOS-open');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1024, 24, 'Infectious mononucleosis');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1025, 25, 'Intrathoracic inj NOS-cl');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1026, 26, 'Foreign body in ear');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1027, 27, 'Mal neo mouth floor NEC');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1028, 28, 'Cl skul/oth fx-deep coma');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1029, 29, 'Kaschin-beck dis-l/leg');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1030, 30, 'Exfl d/t eryth 10-19 bdy');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1031, 31, 'Animal bite NEC');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1032, 32, 'Machinery acc-pers NEC');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1033, 33, 'Trigger finger');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1034, 34, 'Cong catar/lens anom NEC');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1035, 35, 'Cl skul base fx-coma NOS');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1036, 36, 'C1-c4 fx-op/com cord les');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1037, 37, 'Tuberous sclerosis');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1038, 38, 'Referred pain of ear');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1039, 39, 'Oth coll w mov obj-psgr');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1040, 40, 'Adv eff emetics');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1041, 41, 'Opn skul/oth fx-brf coma');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1042, 42, 'Psychological stress NEC');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1043, 43, 'Nodular lymphoma thorax');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1044, 44, 'Lactat dis NOS-antepart');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1045, 45, 'Sunburn');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1046, 46, 'Twins w fetal loss-del');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1047, 47, 'Ridden anim acc-pers NOS');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1048, 48, 'Rappelling');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1049, 49, 'Mixed incontinence');
+insert into STAR_BILLINGS (ACTOR_ID, TITLE_ID, COMMENTS) values (1050, 50, 'Resp TB NEC-histo dx');
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (92,  STR_TO_DATE('5,1,2022',"%d,%m,%Y"), 101,  STR_TO_DATE( '7,2,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (93,  STR_TO_DATE('1,3,2022',"%d,%m,%Y"), 118,  STR_TO_DATE( '3,3,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (94,  STR_TO_DATE('25,1,2022',"%d,%m,%Y"), 149,  STR_TO_DATE( '11,7,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (95,  STR_TO_DATE('7,7,2022',"%d,%m,%Y"), 115,  STR_TO_DATE( '1,6,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (96,  STR_TO_DATE('7,11,2022',"%d,%m,%Y"), 139,  STR_TO_DATE( '9,11,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (97,  STR_TO_DATE('6,4,2022',"%d,%m,%Y"), 112,  STR_TO_DATE( '9,4,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (99,  STR_TO_DATE( '11,8,2022' ,"%d,%m,%Y"), 111,  STR_TO_DATE( '13,8,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (100, STR_TO_DATE( '31,1,2022' ,"%d,%m,%Y"), 113,  STR_TO_DATE( '1,2,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (101, STR_TO_DATE( '13,11,2022' ,"%d,%m,%Y"), 112,  STR_TO_DATE( '14,11,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (103, STR_TO_DATE( '27,3,2022' ,"%d,%m,%Y"), 123,  STR_TO_DATE( '25,4,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (104, STR_TO_DATE( '16,1,2022' ,"%d,%m,%Y"), 122,  STR_TO_DATE( '29,1,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (105, STR_TO_DATE( '7,7,2022' ,"%d,%m,%Y"), 125,  STR_TO_DATE( '10,18,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (106, STR_TO_DATE( '10,16,2022' ,"%d,%m,%Y"), 101,  STR_TO_DATE( '9,17,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (107, STR_TO_DATE( '1,6,2022' ,"%d,%m,%Y"), 109,  STR_TO_DATE( '6,6,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (108, STR_TO_DATE( '25,11,2022' ,"%d,%m,%Y"), 107,  STR_TO_DATE( '27,11,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (109, STR_TO_DATE( '10,5,2022' ,"%d,%m,%Y"), 149,  STR_TO_DATE( '12,5,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (110, STR_TO_DATE( '6,2,2022' ,"%d,%m,%Y"), 112,  STR_TO_DATE( '7,2,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (111, STR_TO_DATE( '24,5,2022' ,"%d,%m,%Y"), 123,  STR_TO_DATE( '26,5,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (112, STR_TO_DATE( '5,8,2022' ,"%d,%m,%Y"), 124,  STR_TO_DATE( '6,8,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (113, STR_TO_DATE( '17,7,2022' ,"%d,%m,%Y"), 122,  STR_TO_DATE( '19,7,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (114, STR_TO_DATE( '6,10,2022' ,"%d,%m,%Y"), 149,  STR_TO_DATE( '9,11,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (115, STR_TO_DATE( '11,9,2022' ,"%d,%m,%Y"), 149,  STR_TO_DATE( '13,9,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (117, STR_TO_DATE( '12,1,2022' ,"%d,%m,%Y"), 125,  STR_TO_DATE( '20,1,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (118, STR_TO_DATE( '1,5,2022' ,"%d,%m,%Y"), 117,  STR_TO_DATE( '4,5,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (119, STR_TO_DATE( '1,11,2022' ,"%d,%m,%Y"), 104,  STR_TO_DATE( '20,11,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (120, STR_TO_DATE( '10,11,2022' ,"%d,%m,%Y"), 103,  STR_TO_DATE( '27,11,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (121, STR_TO_DATE( '7,6,2022' ,"%d,%m,%Y"), 114,  STR_TO_DATE( '19,6,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (122, STR_TO_DATE( '1,12,2022' ,"%d,%m,%Y"), 121,  STR_TO_DATE( '4,12,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (123, STR_TO_DATE( '15,8,2022' ,"%d,%m,%Y"), 122,  STR_TO_DATE( '25,8,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (124, STR_TO_DATE( '10,11,2022' ,"%d,%m,%Y"), 123,  STR_TO_DATE( '20,10,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (125, STR_TO_DATE( '3,4,2022' ,"%d,%m,%Y"), 124,  STR_TO_DATE( '1,6,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (126, STR_TO_DATE( '29,2,2022' ,"%d,%m,%Y"), 101,  STR_TO_DATE( '1,3,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (127, STR_TO_DATE( '1,6,2022' ,"%d,%m,%Y"), 123,  STR_TO_DATE( '4,6,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (128, STR_TO_DATE( '1,5,2022' ,"%d,%m,%Y"), 134,  STR_TO_DATE( '9,5,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (129, STR_TO_DATE( '12,1,2022' "%d,%m,%Y"), 124,  STR_TO_DATE( '19,1,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (130, STR_TO_DATE( '9,10,2022' ,"%d,%m,%Y"), 121,  STR_TO_DATE( '11,10,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (131, STR_TO_DATE( '1,5,2022' ,"%d,%m,%Y"), 133,  STR_TO_DATE( '5,5,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (132, STR_TO_DATE( '21,3,2022' ,"%d,%m,%Y"), 124,  STR_TO_DATE( '24,3,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (133, STR_TO_DATE( '1,8,2022' ,"%d,%m,%Y"), 123,  STR_TO_DATE( '15,8,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (134, STR_TO_DATE( '1,11,2022' ,"%d,%m,%Y"), 116,  STR_TO_DATE( '5,11,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (135, STR_TO_DATE( '12,4,2022' ,"%d,%m,%Y"), 101,  STR_TO_DATE( '16,4,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (136, STR_TO_DATE( '24,1,2022' ,"%d,%m,%Y"), 132,  STR_TO_DATE( '1,2,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (137, STR_TO_DATE( '8,7,2022' ,"%d,%m,%Y"), 140,  STR_TO_DATE( '13,7,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (138, STR_TO_DATE( '10,4,2022' ,"%d,%m,%Y"), 147,  STR_TO_DATE( '14,4,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (139, STR_TO_DATE( '8,7,2022' ,"%d,%m,%Y"), 112,  STR_TO_DATE( '12,7,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (140, STR_TO_DATE( '2,12,2022' ,"%d,%m,%Y"), 149,  STR_TO_DATE( '4,12,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (141, STR_TO_DATE( '11,3,2022' ,"%d,%m,%Y"), 102,  STR_TO_DATE( '14,10,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (142, STR_TO_DATE( '7,5,2022' ,"%d,%m,%Y"), 147,  STR_TO_DATE( '6,11,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (143, STR_TO_DATE( '6,9,2022' ,"%d,%m,%Y"), 147,  STR_TO_DATE( '7,9,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (144, STR_TO_DATE( '22,6,2022' ,"%d,%m,%Y"), 149,  STR_TO_DATE( '25,6,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (145, STR_TO_DATE( '19,5,2022' ,"%d,%m,%Y"), 124,  STR_TO_DATE( '23,5,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (146, STR_TO_DATE( '1,6,2022' ,"%d,%m,%Y"), 101,  STR_TO_DATE( '4,6,2022' ,"%d,%m,%Y"));
+insert into RENTAL_HISTORY (MEDIA_ID, RENTAL_DATE, CUSTOMER_ID, RETURN_DATE) values (147, STR_TO_DATE( '8,10,2022' ,"%d,%m,%Y"), 149,  STR_TO_DATE( '11,10,2022' ,"%d,%m,%Y"));
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 1);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 2);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 3);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 4);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 5);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 6);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 7);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 8);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 9);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 10);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 11);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 12);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 13);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 14);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 15);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 16);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 17);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 18);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 19);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 20);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 21);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 22);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 23);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 24);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 25);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 26);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 27);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 28);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 29);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 30);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 31);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 32);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 33);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 34);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 35);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 36);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 30);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 38);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 39);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 40);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 41);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 42);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 43);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 44);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 45);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 20);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 47);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 48);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 25);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 2);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 4);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 20);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'VHS', 17);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 18);
+insert into MEDIA ( FORMAT, TITLE_ID) values ( 'DVD', 13);
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------INDEX---------------------------------------------------------------------------------------------
+
+create index last_name_idx
+on customers(UPPER(last_name));
+
+-------------------------------------------------------------------------------------------QUERY---------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------- 1 -----------------------------------------------------------------------------------------------
+
+select  customer_id, last_name,
+case when (customer_id in (select customer_id from rental_history
+                           GROUP by customer_id
+                           HAVING count(customer_id)>3) )then 'CF' else 'NF' end tipo
+from customers;
+
+------------------------------------------------------------------------------------------ 2 ------------------------------------------------------------------------------------------------
+
+select a.stage_name,m.title, m.category
+from actors a, movies m, star_billings s
+where a.actor_id = s.actor_id and m.title_id = s.title_id and m.category = 'ACTION';
+
+------------------------------------------------------------------------------------------ 3 ------------------------------------------------------------------------------------------------
+
+select a.category, date_format(r.rental_date, 'MONTH') as mes 
+from media m, rental_history r, movies a
+where r.media_id = m.media_id and m.title_id = a.title_id
+order by date_format(r.rental_date, 'MONTH');
